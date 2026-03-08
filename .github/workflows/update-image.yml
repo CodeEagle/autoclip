@@ -33,6 +33,12 @@ jobs:
       - name: Checkout migration repository
         uses: actions/checkout@v4
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Resolve upstream ref
         id: resolve-ref
         env:
@@ -73,21 +79,32 @@ jobs:
           cp lazycat/start-web.sh /tmp/autoclip-source/lazycat/start-web.sh
           cp lazycat/start-worker.sh /tmp/autoclip-source/lazycat/start-worker.sh
 
-      - name: Build and push image to ghcr.io
+      - name: Resolve ghcr image name
+        id: image-name
+        run: |
+          OWNER_LOWER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          echo "ghcr_image=ghcr.io/${OWNER_LOWER}/${{ env.IMAGE_NAME }}:${{ steps.clone-source.outputs.source_version }}" >> "$GITHUB_OUTPUT"
+
+      - name: Login to ghcr.io
+        uses: docker/login-action@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          cd /tmp/autoclip-source
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-          IMAGE_TAG="${{ steps.clone-source.outputs.source_version }}"
-          GHCR_IMAGE="ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:$IMAGE_TAG"
-          GHCR_IMAGE=$(echo "$GHCR_IMAGE" | tr '[:upper:]' '[:lower:]')
+      - name: Build and push multi-arch image to ghcr.io
+        uses: docker/build-push-action@v6
+        with:
+          context: /tmp/autoclip-source
+          file: /tmp/autoclip-source/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.image-name.outputs.ghcr_image }}
 
-          docker build -t "$GHCR_IMAGE" .
-          echo "$GITHUB_TOKEN" | docker login ghcr.io -u "${{ github.repository_owner }}" --password-stdin
-          docker push "$GHCR_IMAGE"
-
-          echo "Built and pushed image: $GHCR_IMAGE"
+      - name: Print pushed image
+        run: echo "Built and pushed image: ${{ steps.image-name.outputs.ghcr_image }}"
 
       - name: Export build metadata
         run: |
@@ -96,7 +113,7 @@ jobs:
             "upstream_repo": "${{ env.UPSTREAM_REPO }}",
             "source_version": "${{ steps.clone-source.outputs.source_version }}",
             "build_version": "${{ steps.clone-source.outputs.build_version }}",
-            "image": "ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ steps.clone-source.outputs.source_version }}"
+            "image": "${{ steps.image-name.outputs.ghcr_image }}"
           }
           EOF
 
