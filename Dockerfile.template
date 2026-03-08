@@ -67,8 +67,6 @@ RUN chown -R autoclip:autoclip /app \
     && chmod +x /usr/local/bin/start-web.sh /usr/local/bin/start-worker.sh \
     && chmod -R 755 /app/data /app/logs
 
-USER autoclip
-
 EXPOSE 3000 8000
 
 CMD ["/usr/local/bin/start-web.sh"]
