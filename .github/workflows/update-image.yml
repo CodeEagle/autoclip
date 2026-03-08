@@ -82,7 +82,6 @@ jobs:
       - name: Build and push arm64 image to ghcr.io
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
         run: |
           cd /tmp/autoclip-source
           echo "$GITHUB_TOKEN" | docker login ghcr.io -u "${{ github.repository_owner }}" --password-stdin
