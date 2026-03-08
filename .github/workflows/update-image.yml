@@ -25,19 +25,13 @@ env:
 
 jobs:
   build-image:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     permissions:
       contents: read
       packages: write
     steps:
       - name: Checkout migration repository
         uses: actions/checkout@v4
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
 
       - name: Resolve upstream ref
         id: resolve-ref
@@ -85,23 +79,15 @@ jobs:
           OWNER_LOWER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
           echo "ghcr_image=ghcr.io/${OWNER_LOWER}/${{ env.IMAGE_NAME }}:${{ steps.clone-source.outputs.source_version }}" >> "$GITHUB_OUTPUT"
 
-      - name: Login to ghcr.io
-        uses: docker/login-action@v3
+      - name: Build and push arm64 image to ghcr.io
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build and push multi-arch image to ghcr.io
-        uses: docker/build-push-action@v6
-        with:
-          context: /tmp/autoclip-source
-          file: /tmp/autoclip-source/Dockerfile
-          platforms: linux/arm64
-          push: true
-          tags: ${{ steps.image-name.outputs.ghcr_image }}
+        run: |
+          cd /tmp/autoclip-source
+          echo "$GITHUB_TOKEN" | docker login ghcr.io -u "${{ github.repository_owner }}" --password-stdin
+          docker build -t "${{ steps.image-name.outputs.ghcr_image }}" .
+          docker push "${{ steps.image-name.outputs.ghcr_image }}"
 
       - name: Print pushed image
         run: |
