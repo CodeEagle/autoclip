@@ -104,7 +104,8 @@ jobs:
           tags: ${{ steps.image-name.outputs.ghcr_image }}
 
       - name: Print pushed image
-        run: echo "Built and pushed image: ${{ steps.image-name.outputs.ghcr_image }}"
+        run: |
+          echo "Built and pushed image: ${{ steps.image-name.outputs.ghcr_image }}"
 
       - name: Export build metadata
         run: |
