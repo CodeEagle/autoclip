@@ -61,6 +61,16 @@ COPY lazycat/nginx.autoclip.conf /etc/nginx/conf.d/default.conf
 COPY lazycat/start-web.sh /usr/local/bin/start-web.sh
 COPY lazycat/start-worker.sh /usr/local/bin/start-worker.sh
 
+RUN python -m pip install --no-cache-dir pysrt
+
+RUN python - <<'PY'
+import sys
+sys.path.insert(0, '/app')
+import backend.main
+import backend.core.celery_app
+print('import smoke check passed')
+PY
+
 RUN mkdir -p /app/data/projects /app/data/uploads /app/data/temp /app/data/output /app/logs
 
 RUN chown -R autoclip:autoclip /app \

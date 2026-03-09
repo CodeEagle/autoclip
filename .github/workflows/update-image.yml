@@ -94,6 +94,7 @@ jobs:
         run: |
           OWNER_LOWER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
           echo "ghcr_image=ghcr.io/${OWNER_LOWER}/${{ env.IMAGE_NAME }}:${{ steps.clone-source.outputs.source_version }}" >> "$GITHUB_OUTPUT"
+          echo "ghcr_image_semver=ghcr.io/${OWNER_LOWER}/${{ env.IMAGE_NAME }}:v${{ steps.clone-source.outputs.build_version }}" >> "$GITHUB_OUTPUT"
 
       - name: Build and push image to ghcr.io
         env:
@@ -101,12 +102,17 @@ jobs:
         run: |
           cd /tmp/autoclip-source
           echo "$GITHUB_TOKEN" | docker login ghcr.io -u "${{ github.repository_owner }}" --password-stdin
-          docker build -t "${{ steps.image-name.outputs.ghcr_image }}" .
+          docker build \
+            -t "${{ steps.image-name.outputs.ghcr_image }}" \
+            -t "${{ steps.image-name.outputs.ghcr_image_semver }}" \
+            .
           docker push "${{ steps.image-name.outputs.ghcr_image }}"
+          docker push "${{ steps.image-name.outputs.ghcr_image_semver }}"
 
       - name: Print pushed image
         run: |
           echo "Built and pushed image: ${{ steps.image-name.outputs.ghcr_image }}"
+          echo "Built and pushed image: ${{ steps.image-name.outputs.ghcr_image_semver }}"
 
       - name: Export build metadata
         run: |
