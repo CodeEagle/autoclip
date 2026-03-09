@@ -36,7 +36,7 @@ services:
     command: /usr/local/bin/start-web.sh
 
   worker:
-    image: registry.lazycat.cloud/invokerlaw/codeeagle/autoclip:7127c496688cc219
+    image: registry.lazycat.cloud/invokerlaw/codeeagle/autoclip:8441ecfc0289bd57
     environment:
       - DATABASE_URL=sqlite:///./data/autoclip.db
       - REDIS_URL=redis://redis:6379/0
