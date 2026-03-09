@@ -76,13 +76,26 @@ jobs:
           from pathlib import Path
 
           frontend_root = Path("/tmp/autoclip-source/frontend/src")
+          replacements = {
+              "http://localhost:8000/api/v1": "/api/v1",
+              "http://127.0.0.1:8000/api/v1": "/api/v1",
+              "http://localhost:8000/api": "/api",
+              "http://127.0.0.1:8000/api": "/api",
+          }
+
           for path in frontend_root.rglob("*"):
             if path.suffix not in {".ts", ".tsx", ".js", ".jsx"}:
               continue
             text = path.read_text()
-            updated = text.replace("http://localhost:8000/api/v1", "/api/v1")
+            updated = text
+            for source, target in replacements.items():
+              updated = updated.replace(source, target)
             updated = updated.replace(
               "`ws://localhost:8000/api/v1/ws/${userId}`",
+              "`${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}/api/v1/ws/${userId}`",
+            )
+            updated = updated.replace(
+              "`ws://127.0.0.1:8000/api/v1/ws/${userId}`",
               "`${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}/api/v1/ws/${userId}`",
             )
             if updated != text:
