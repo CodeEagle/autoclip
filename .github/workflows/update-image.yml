@@ -114,6 +114,55 @@ jobs:
             )
             if updated != text:
               task_utils.write_text(updated)
+
+          pipeline_adapter = backend_root / "services" / "simple_pipeline_adapter.py"
+          if pipeline_adapter.exists():
+            text = pipeline_adapter.read_text()
+            updated = text
+
+            old = """                else:
+                    logger.warning("自动生成字幕失败，创建空大纲")
+                    # 创建一个空的大纲文件
+                    outlines = []
+                    outline_file = metadata_dir / "step1_outline.json"
+                    import json
+                    with open(outline_file, 'w', encoding='utf-8') as f:
+                        json.dump(outlines, f, ensure_ascii=False, indent=2)
+"""
+            new = """                else:
+                    logger.error("自动生成字幕失败，无法继续处理")
+                    return {
+                        "status": "failed",
+                        "project_id": self.project_id,
+                        "task_id": self.task_id,
+                        "message": "自动生成字幕失败，请上传 SRT 或确认镜像内 Whisper 可用"
+                    }
+"""
+            if old in updated:
+              updated = updated.replace(old, new)
+
+            old = """            emit_progress(self.project_id, "SUBTITLE", "字幕处理完成", subpercent=50)
+            
+            # 阶段3: 内容分析
+"""
+            new = """            emit_progress(self.project_id, "SUBTITLE", "字幕处理完成", subpercent=50)
+            
+            if not outlines:
+                logger.error("未提取到有效大纲，停止后续处理")
+                return {
+                    "status": "failed",
+                    "project_id": self.project_id,
+                    "task_id": self.task_id,
+                    "message": "未提取到有效大纲，请检查字幕内容或模型配置"
+                }
+            
+            # 阶段3: 内容分析
+"""
+            if old in updated:
+              updated = updated.replace(old, new)
+
+            if updated != text:
+              pipeline_adapter.write_text(updated)
           PY
 
       - name: Resolve ghcr image name
