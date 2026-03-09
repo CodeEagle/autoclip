@@ -93,7 +93,9 @@ jobs:
         id: image-name
         run: |
           OWNER_LOWER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          echo "ghcr_image=ghcr.io/${OWNER_LOWER}/${{ env.IMAGE_NAME }}:${{ steps.clone-source.outputs.source_version }}" >> "$GITHUB_OUTPUT"
+          MIGRATION_VERSION=$(git rev-parse --short=12 HEAD)
+          echo "migration_version=$MIGRATION_VERSION" >> "$GITHUB_OUTPUT"
+          echo "ghcr_image=ghcr.io/${OWNER_LOWER}/${{ env.IMAGE_NAME }}:${{ steps.clone-source.outputs.source_version }}-${MIGRATION_VERSION}" >> "$GITHUB_OUTPUT"
           echo "ghcr_image_semver=ghcr.io/${OWNER_LOWER}/${{ env.IMAGE_NAME }}:v${{ steps.clone-source.outputs.build_version }}" >> "$GITHUB_OUTPUT"
 
       - name: Build and push image to ghcr.io
