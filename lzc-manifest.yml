@@ -16,7 +16,7 @@ application:
       backend: http://web:3000/
 services:
   web:
-    image: registry.lazycat.cloud/invokerlaw/codeeagle/autoclip:3207450b3f14c13c
+    image: registry.lazycat.cloud/invokerlaw/codeeagle/autoclip:612bacb573347627
     environment:
       - DATABASE_URL=sqlite:///./data/autoclip.db
       - REDIS_URL=redis://redis:6379/0
@@ -36,7 +36,7 @@ services:
     command: /usr/local/bin/start-web.sh
 
   worker:
-    image: registry.lazycat.cloud/invokerlaw/codeeagle/autoclip:6c99cf9462ba4f3b
+    image: registry.lazycat.cloud/invokerlaw/codeeagle/autoclip:612bacb573347627
     environment:
       - DATABASE_URL=sqlite:///./data/autoclip.db
       - REDIS_URL=redis://redis:6379/0
