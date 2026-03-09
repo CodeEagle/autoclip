@@ -61,13 +61,14 @@ COPY lazycat/nginx.autoclip.conf /etc/nginx/conf.d/default.conf
 COPY lazycat/start-web.sh /usr/local/bin/start-web.sh
 COPY lazycat/start-worker.sh /usr/local/bin/start-worker.sh
 
-RUN python -m pip install --no-cache-dir pysrt
+RUN python -m pip install --no-cache-dir pysrt pytz
 
 RUN python - <<'PY'
 import sys
 sys.path.insert(0, '/app')
 import backend.main
 import backend.core.celery_app
+import backend.services.project_service
 print('import smoke check passed')
 PY
 
