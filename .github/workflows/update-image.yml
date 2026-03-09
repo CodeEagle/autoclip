@@ -18,6 +18,13 @@ on:
         required: false
         default: false
         type: boolean
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/update-image.yml
+      - Dockerfile.template
+      - lazycat/**
 
 env:
   UPSTREAM_REPO: zhouxiaoka/autoclip
