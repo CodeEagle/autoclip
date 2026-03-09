@@ -25,7 +25,7 @@ env:
 
 jobs:
   build-image:
-    runs-on: ubuntu-24.04-arm
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
       packages: write
@@ -72,6 +72,22 @@ jobs:
           cp lazycat/nginx.autoclip.conf /tmp/autoclip-source/lazycat/nginx.autoclip.conf
           cp lazycat/start-web.sh /tmp/autoclip-source/lazycat/start-web.sh
           cp lazycat/start-worker.sh /tmp/autoclip-source/lazycat/start-worker.sh
+          python3 - <<'PY'
+          from pathlib import Path
+
+          frontend_root = Path("/tmp/autoclip-source/frontend/src")
+          for path in frontend_root.rglob("*"):
+            if path.suffix not in {".ts", ".tsx", ".js", ".jsx"}:
+              continue
+            text = path.read_text()
+            updated = text.replace("http://localhost:8000/api/v1", "/api/v1")
+            updated = updated.replace(
+              "`ws://localhost:8000/api/v1/ws/${userId}`",
+              "`${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}/api/v1/ws/${userId}`",
+            )
+            if updated != text:
+              path.write_text(updated)
+          PY
 
       - name: Resolve ghcr image name
         id: image-name
@@ -79,7 +95,7 @@ jobs:
           OWNER_LOWER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
           echo "ghcr_image=ghcr.io/${OWNER_LOWER}/${{ env.IMAGE_NAME }}:${{ steps.clone-source.outputs.source_version }}" >> "$GITHUB_OUTPUT"
 
-      - name: Build and push arm64 image to ghcr.io
+      - name: Build and push image to ghcr.io
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
