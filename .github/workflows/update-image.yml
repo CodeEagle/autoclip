@@ -76,6 +76,7 @@ jobs:
           from pathlib import Path
 
           frontend_root = Path("/tmp/autoclip-source/frontend/src")
+          backend_root = Path("/tmp/autoclip-source/backend")
           replacements = {
               "http://localhost:8000/api/v1": "/api/v1",
               "http://127.0.0.1:8000/api/v1": "/api/v1",
@@ -100,6 +101,19 @@ jobs:
             )
             if updated != text:
               path.write_text(updated)
+
+          task_utils = backend_root / "utils" / "task_submission_utils.py"
+          if task_utils.exists():
+            text = task_utils.read_text()
+            updated = text
+            if "import os" not in updated:
+              updated = updated.replace("import logging\n", "import logging\nimport os\n", 1)
+            updated = updated.replace(
+              "r = redis.Redis(host='localhost', port=6379, db=0)",
+              "r = redis.Redis.from_url(os.getenv('REDIS_URL', 'redis://redis:6379/0'))",
+            )
+            if updated != text:
+              task_utils.write_text(updated)
           PY
 
       - name: Resolve ghcr image name
