@@ -3,7 +3,7 @@ package: fun.selfstudio.app.migration.autoclip
 version: 1.0.0
 min_os_version: 1.3.8
 name: AutoClip
-description: AI video clipping workspace with web UI, worker queue, and Redis
+description: (LazyCat Auto-build) AI video clipping workspace with web UI, worker queue, and Redis
 license: MIT
 homepage: https://github.com/zhouxiaoka/autoclip
 author: zhouxiaoka
@@ -65,7 +65,7 @@ services:
 locales:
   en:
     name: AutoClip
-    description: AI video clipping workspace with web UI, worker queue, and Redis
+    description: (LazyCat Auto-build) AI video clipping workspace with web UI, worker queue, and Redis
   zh:
     name: AutoClip
-    description: AI 视频智能切片工作台，集成 Web 界面、任务队列与 Redis
+    description: （懒猫微服自动构建）AI 视频智能切片工作台，集成 Web 界面、任务队列与 Redis
