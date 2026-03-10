@@ -16,7 +16,7 @@ application:
       backend: http://web:3000/
 services:
   web:
-    image: registry.lazycat.cloud/invokerlaw/codeeagle/autoclip:1eb3970dca91387a
+    image: registry.lazycat.cloud/invokerlaw/codeeagle/autoclip:c4da731154604f7c
     environment:
       - DATABASE_URL=sqlite:///./data/autoclip.db
       - REDIS_URL=redis://redis:6379/0
