@@ -7,6 +7,11 @@ export PYTHONUNBUFFERED=1
 
 mkdir -p /app/data/projects /app/data/uploads /app/data/temp /app/data/output /app/logs
 
+# Keep legacy root paths mapped into the persisted data tree.
+rm -rf /app/uploads /app/output
+ln -s /app/data/uploads /app/uploads
+ln -s /app/data/output /app/output
+
 if [ ! -f /app/data/autoclip.db ]; then
   python - <<'PY'
 import sys
