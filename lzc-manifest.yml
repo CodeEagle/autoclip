@@ -1,6 +1,6 @@
 lzc-sdk-version: '0.1'
 package: fun.selfstudio.app.migration.autoclip
-version: 1.0.1
+version: 1.0.0
 min_os_version: 1.3.8
 name: AutoClip
 description: (LazyCat Auto-build) AI video clipping workspace with web UI, worker queue, and Redis
@@ -16,7 +16,7 @@ application:
       backend: http://web:3000/
 services:
   web:
-    image: registry.lazycat.cloud/invokerlaw/codeeagle/autoclip:61f3dc4e7b957f34
+    image: registry.lazycat.cloud/invokerlaw/codeeagle/autoclip:e22c1fc5c447fe0f
     environment:
       - DATABASE_URL=sqlite:///./data/autoclip.db
       - REDIS_URL=redis://redis:6379/0
@@ -36,7 +36,7 @@ services:
     command: /usr/local/bin/start-web.sh
 
   worker:
-    image: registry.lazycat.cloud/invokerlaw/codeeagle/autoclip:1eb3970dca91387a
+    image: registry.lazycat.cloud/invokerlaw/codeeagle/autoclip:e22c1fc5c447fe0f
     environment:
       - DATABASE_URL=sqlite:///./data/autoclip.db
       - REDIS_URL=redis://redis:6379/0
