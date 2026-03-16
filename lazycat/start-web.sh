@@ -44,6 +44,16 @@ cleanup() {
 
 trap cleanup INT TERM
 
+# Wait for uvicorn to be ready before starting nginx, to avoid 502 on startup health checks.
+i=0
+while [ $i -lt 30 ]; do
+  if curl -s -o /dev/null http://127.0.0.1:8000/openapi.json 2>/dev/null; then
+    break
+  fi
+  sleep 1
+  i=$((i + 1))
+done
+
 nginx -g 'daemon off;' &
 NGINX_PID=$!
 
